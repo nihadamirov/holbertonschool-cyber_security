@@ -1,1 +1,3 @@
-lsb_release -i | cut -d: -f2 | xargs
+
+#!/bin/bash
+lsb_release -si
