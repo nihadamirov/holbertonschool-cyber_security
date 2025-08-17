@@ -1,2 +1,2 @@
 #!/bin/bash
-whois "$1" | grep -E "^(Registrant|Admin|Tech)" | sed 's/: */,/' > "$1.csv"
+whois $1 | awk '/Registrant|Admin|Tech/ && !/Registry/ {gsub(/:/, ","); print}' > $1.csv
