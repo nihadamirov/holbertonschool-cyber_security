@@ -1,2 +1,3 @@
 #!/bin/bash
-whois "$1" | awk -F': ' '/^(Registrant|Admin|Tech)/ {gsub(": ", ","); gsub(", ", ","); print $1 "," $2 | "sed s/,$//"}' > "$1.csv"
+whois "$1" | grep -E "^(Registrant|Admin|Tech)" | sed 's/: */,/' > "$1.csv"
+
