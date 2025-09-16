@@ -1,7 +1,1 @@
-No.     Time           Source                Destination           Protocol Length Info
   13432 4475.663178262 192.168.126.2         192.168.126.128       ICMP     118    Destination unreachable (Network unreachable)
-
-Frame 13432: 118 bytes on wire (944 bits), 118 bytes captured (944 bits) on interface eth0, id 0
-Ethernet II, Src: VMware_ef:86:b6 (00:50:56:ef:86:b6), Dst: VMware_bc:20:3a (00:0c:29:bc:20:3a)
-Internet Protocol Version 4, Src: 192.168.126.2, Dst: 192.168.126.128
-Internet Control Message Protocol
