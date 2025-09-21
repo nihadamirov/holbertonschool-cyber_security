@@ -13,19 +13,23 @@ input="$1"
 # remove optional {xor} prefix
 b64="${input#\{xor\}}"
 
-python3 <<PY
-import sys, base64
+# Pass the base64 string via environment variable
+B64="$b64" python3 <<'PY'
+import os, sys, base64
 
-b64 = sys.argv[1] if len(sys.argv) > 1 else "$b64"
+b64 = os.environ.get("B64", "")
+if not b64:
+    sys.stderr.write("No base64 input provided\n")
+    sys.exit(1)
 
 try:
     data = base64.b64decode(b64)
 except Exception:
-    sys.stderr.write('Invalid base64 payload\n')
+    sys.stderr.write("Invalid base64 payload\n")
     sys.exit(2)
 
 KEY = 0x5f
 out = bytes([c ^ KEY for c in data])
 sys.stdout.buffer.write(out)
-PY "$b64"
+PY
 
