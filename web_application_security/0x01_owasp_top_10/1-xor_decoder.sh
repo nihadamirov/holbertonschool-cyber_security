@@ -1,34 +1,40 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# 1-xor_decoder.sh
+# Usage: ./1-xor_decoder.sh "{xor}KzosKw=="
+# This script decodes IBM WebSphere XOR-obfuscated strings. Behaviour:
+# - Accepts an argument which may include the {xor} prefix
+# - Base64-decodes the payload
+# - XORs each resulting byte with 0x5f (95 decimal) to recover plaintext
+# Example:
+# ./1-xor_decoder.sh '{xor}KzosKw==' -> prints: test
 
-# Check if the argument is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./1-xor_decoder.sh {xor}encoded_string"
-  exit 1
+
+set -euo pipefail
+if [ "$#" -ne 1 ]; then
+echo "Usage: $0 '{xor}Base64Payload'" >&2
+exit 1
 fi
 
-# Remove the {xor} prefix
-encoded=$(echo "$1" | sed 's/{xor}//')
 
-# Base64 decode the input
-decoded=$(echo "$encoded" | base64 -d 2>/dev/null)
+input="$1"
+# remove optional {xor} prefix (works whether prefix present or not)
+b64="${input#\{xor\}}"
 
-# Check if base64 decoding succeeded
-if [ $? -ne 0 ]; then
-  echo "Error: Invalid Base64 input."
-  exit 1
-fi
 
-# Define XOR key (you can modify this based on the actual key)
-key=95
+# ensure base64 is valid and decode + xor using Python for portability
+python3 - <<'PY' -- "$b64"
+import sys, base64
+b64 = sys.argv[1]
+try:
+data = base64.b64decode(b64)
+except Exception:
+sys.stderr.write('Invalid base64 payload\n')
+sys.exit(2)
 
-# Perform XOR decoding by looping through each character
-decoded_message=""
-for (( i=0; i<${#decoded}; i++ )); do
-    char=$(printf "%d" "'${decoded:$i:1}")  # Get ASCII value of each char
-    xor_char=$(($char ^ $key))              # XOR with the key
-    decoded_message+=$(printf \\$(printf '%03o' "$xor_char"))  # Convert back to character
-done
 
-# Output the decoded message
-echo "$decoded_message"
-
+# XOR key used by this WebSphere encoding
+KEY = 0x5f
+out = bytes([c ^ KEY for c in data])
+# print without extra newline manipulation (stdout will show plaintext)
+sys.stdout.buffer.write(out)
+PY
