@@ -1,0 +1,3 @@
+cat output_*/findings.txt | grep -i theme|bootstrap|preview
+
+
